@@ -1,0 +1,5 @@
+﻿  소스.cpp
+c:\users\고재원\documents\visual studio 2017\projects\consoleapplication111\consoleapplication111\automata.h(338): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+c:\users\고재원\documents\visual studio 2017\projects\consoleapplication111\consoleapplication111\automata.h(368): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  ConsoleApplication111.vcxproj -> C:\Users\고재원\documents\visual studio 2017\Projects\ConsoleApplication111\Debug\ConsoleApplication111.exe
+  ConsoleApplication111.vcxproj -> C:\Users\고재원\documents\visual studio 2017\Projects\ConsoleApplication111\Debug\ConsoleApplication111.pdb (Partial PDB)
