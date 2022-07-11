@@ -1,0 +1,13 @@
+char test ( int v ) {
+	int u;
+	String str;
+	char c = 'v';
+	if( true == false) {
+		while( true ) {
+			v = 5+1/6;
+		}
+	}
+	return c;
+}
+
+	

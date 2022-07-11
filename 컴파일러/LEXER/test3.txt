@@ -1,0 +1,10 @@
+int main()[
+	char s = 'd';
+	String die = "DIEDIEDIEDIE";
+	if(s <= -10){
+		while( class g != 60 ){
+			alpha - delta;
+		}
+	}
+	return 0;
+]
