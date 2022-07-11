@@ -1,0 +1,235 @@
+#include <stdio.h>
+#include <stdlib.h> 
+
+// TEST :
+//#define Stack_Size 12*15  
+//#define numRow 12
+//#define numCol 15
+
+#define Stack_Size 100
+#define numRow 10
+#define numCol 10
+
+typedef struct {
+	short int x;
+	short int y;
+} element; // 스택에 dir의 정보를 넣지 않았음
+
+typedef struct {
+	element storage[Stack_Size];
+	int top;
+}Stack;// 스택에 dir의 정보를 넣지 않았음
+
+
+int maze[numRow][numCol] = {
+	{ 0,0,1,0,1,1,1,0,1,0 },
+	{ 1,0,0,1,1,1,0,1,0,1 },
+	{ 1,1,0,1,1,0,1,0,1,1 },
+	{ 0,0,1,0,1,1,1,0,0,0 },
+	{ 0,1,1,0,1,0,1,0,1,0 },
+	{ 1,0,1,1,1,1,0,0,1,0 },
+	{ 1,1,0,1,0,1,0,0,1,0 },
+	{ 1,0,0,0,1,0,1,0,0,0 },
+	{ 0,1,0,1,1,1,0,1,1,0 },
+	{ 1,0,0,1,1,1,0,0,0,0 }
+};// maze의 주변을 1로 둘러싸지 않았음
+
+/*  TEST:
+int maze[numRow][numCol] = {
+{0,1,0,0,0,1,1,0,0,0,1,1,1,1,1},
+{1,0,0,0,1,1,0,1,1,1,0,0,1,1,1},
+{0,1,1,0,0,0,0,1,1,1,1,0,0,1,1},
+{1,1,0,1,1,1,1,0,1,1,0,1,1,0,0},
+{1,1,0,1,0,0,1,0,1,1,1,1,1,1,1},
+{0,0,1,1,0,1,1,1,0,1,0,0,1,0,1},
+{0,0,1,1,0,1,1,1,0,1,0,0,1,0,1},
+{0,1,1,1,1,0,0,1,1,1,1,1,1,1,1},
+{0,0,1,1,0,1,1,0,1,1,1,1,1,0,1},
+{1,1,0,0,0,1,1,0,1,1,0,0,0,0,0},
+{0,0,1,1,1,1,1,0,0,0,1,1,1,1,0},
+{0,1,0,0,1,1,1,1,1,0,1,1,1,1,0}
+};// maze의 주변을 1로 둘러싸지 않았음
+*/
+
+
+void push(Stack* e, element storage) {
+		e->top++;
+		e->storage[e->top].x = storage.x;
+		e->storage[e->top].y = storage.y;
+}
+
+element pop(Stack* e) {
+	if (e->top >= 0)
+		return e->storage[(e->top)--];
+	else {
+		printf("stack is empty....\n");
+		exit(1);
+	}
+}
+
+int Check_Range(int x, int y) {
+	// 받은 점의 좌표가 행렬을 벗어나는지 확인
+	if ((0 <= x) && (x < numRow) && (0 <= y) && (y < numCol))
+		return 1;
+	else return 0;
+}
+
+
+int check_roadNum(int* arr) {
+	// 그 점에서의 다음에 갈 길의 개수 반환
+	int HowManyRoads = 0;
+
+	for (int i = 0; i < 8; i++)
+		if (arr[i] == 1)
+			HowManyRoads++; 
+
+			return HowManyRoads;
+}
+
+element Find_next_road(int* arr, int x, int y) {
+	// 북쪽 먼저 시계방향 순으로 탐색 시 먼저 탐색하게 되는 다음 점 반환
+
+	int FirstRoad = 0;
+	element result_loc;
+
+	for (int i = 0; i < 8; i++) {
+		if (arr[i] == 1) {
+			FirstRoad = i;
+			break;// 절차적으로 첫 번째 길 찾기
+		}
+	}
+	switch(FirstRoad){//그 첫 번째 길의 좌표 찾기
+		case 0: result_loc.x = x - 1;  result_loc.y = y;       break; // 북
+		case 1: result_loc.x = x - 1;  result_loc.y = y + 1;   break; // 북동
+		case 2: result_loc.x = x;      result_loc.y = y + 1;   break; // 동
+		case 3: result_loc.x = x + 1;  result_loc.y = y + 1;   break; // 동남
+		case 4: result_loc.x = x + 1;  result_loc.y = y;       break; // 남
+		case 5: result_loc.x = x + 1;  result_loc.y = y - 1;   break; // 남서
+		case 6: result_loc.x = x;      result_loc.y = y - 1;   break; // 서
+		case 7: result_loc.x = x - 1;  result_loc.y = y - 1;   break; // 서북
+	}
+	return result_loc;
+}
+
+void Find_every_road(int* arr, int x, int y ) {
+	// 인접한 모든 방향에 길이 있는지만 탐색(범위 고려)
+	// arr에는 모두 0이 저장되어 있음.
+	if (Check_Range(x-1, y) == 1) {
+		if (maze[x-1][y] == 0)
+			arr[0] = 1;// 북 // 길이 있으면 해당 항에 1 저장.
+	}
+	if (Check_Range(x-1, y+1) == 1) {
+		if (maze[x-1][y+1] == 0)
+			arr[1] = 1;//북동
+	}
+	if (Check_Range(x, y+1) == 1) {
+		if (maze[x][y+1] == 0)
+			arr[2] = 1;//동
+	}
+	if (Check_Range(x+1, y+1) == 1) {
+		if (maze[x+1][y+1] == 0)
+			arr[3] = 1;//동남
+	}
+	if (Check_Range(x+1, y) == 1) {
+		if (maze[x+1][y] == 0)
+			arr[4] = 1;//남
+	}
+	if (Check_Range(x+1, y-1) == 1) {
+		if (maze[x+1][y-1] == 0)
+			arr[5] = 1;//남서
+	}
+	if (Check_Range(x, y-1) == 1) {
+		if (maze[x][y-1] == 0)
+			arr[6] = 1;//서
+	}
+		
+	if (Check_Range(x-1, y-1) == 1) {
+		if (maze[x-1][y-1] == 0)
+			arr[7] = 1;//서북
+	}
+
+}
+
+void Find_Path(Stack* s, int x, int y) {
+	// 가장 중요한 함수. 여기서 길을 찾는다. 
+	int WhereToGo[8] = { 0,0,0,0,0,0,0,0 };//여기에 길 북,북동,동 순으로저장
+	element next_Location;// 여기에 다음 갈 길 저장
+	element tmp;
+
+	Find_every_road(WhereToGo,x,y); // 이 점 주변에서의 모든 길을 찾는다.  
+	
+
+	if (check_roadNum(WhereToGo) == 1) {// 즉 길이 1개만 있을 때
+		maze[x][y] = 1;//외길이다
+		next_Location = Find_next_road(WhereToGo, x, y);
+		push(s, next_Location);
+	}
+	else if (check_roadNum(WhereToGo) > 1) {// 길이 여러개 일때
+		maze[x][y] = 2;		//  이 점에서 길이 여러개이므로 이 점이 체크포인트이다. 
+		next_Location = Find_next_road(WhereToGo, x, y);
+		push(s, next_Location);
+	}
+
+	else { // 길이 없다 ㅜ
+		maze[x][y] = 1; // 그래도 maze에 지나온 길 저장.
+		tmp = pop(s);
+		while (maze[tmp.x][tmp.y] == 2) // 최근 체크 포인트로 돌아간다. 
+			tmp = pop(s);// 스택에 저장된 잘못 된 길을 지운다. 
+	}
+}
+
+
+
+int main() {
+	element location;
+	Stack s;
+
+	s.top = -1; // 스택을 비운다. 
+
+	location.x = 0;
+	location.y = 0; // 시작점의 좌표 대입
+
+	push(&s, location); // 스택에 저장
+
+	printf("========== MAZE =============\n\n");// Maze 출력
+
+	for (int z = 0; z < numRow; z++) {
+		printf("   ");
+		for (int v = 0; v < numCol; v++) {
+			printf("%d ", maze[z][v]);
+		}
+		printf("\n");
+	}
+	printf("\n");// end 출력
+
+	
+
+	while (1) {
+		if ((location.x == numRow - 1 && location.y == numCol - 1))
+			break;// 즉 maze[9][9]에 도착하면 종료. 조건에 만족
+
+		else if (s.top < 0) {
+			printf("Can't find the way out..... \n");
+			return 0; //출구가 없어 스택에 아무 값도 저장이 안 되어 있을 때
+		}
+
+		else {
+			Find_Path(&s, location.x, location.y);
+			location = s.storage[s.top]; // 맨 위의 스택의 값 복사
+		}
+	}
+
+	printf("\n\n");
+	printf("Path :\n");// 경로 출력
+
+	for (int n = 0; n <= s.top; n++) {
+		printf(">> (%2d,%2d)", s.storage[n].x, s.storage[n].y);
+		if ((n+1) % 5 == 0) //  5자리씩 끊어서 출력
+			printf("\n");
+	}
+	printf("\n\n");
+	return 0;
+}
+
+
+
